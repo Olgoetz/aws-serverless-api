@@ -2,11 +2,12 @@
 
 set -e
 
-
+# Install python dependencies
 install_python_dependencies() {
   pip install --target="$BUILD_PATH/python" -r "$SOURCE_FILE"
 }
 
+# Install nodejs dependencies
 install_nodejs_dependencies() {
   mkdir -p "$BUILD_PATH/nodejs"
   cp "$SOURCE_FILE" "$BUILD_PATH/nodejs/package.json"

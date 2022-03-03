@@ -1,4 +1,4 @@
-# Lambda
+## Lambda
 resource "aws_lambda_permission" "apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
@@ -15,17 +15,21 @@ data "archive_file" "this" {
   source_file = "${path.module}/lambda/lambda.py"
 }
 
-resource "aws_lambda_function" "lambda" {
-  filename      = data.archive_file.this.output_path
+locals {
   function_name = "FastAPI"
-  role          = aws_iam_role.role.arn
-  handler       = "lambda.handler"
-  runtime       = "python3.8"
-  layers        = [module.python-api-dependencies.lambda_layer_arn]
+}
+
+resource "aws_lambda_function" "lambda" {
+  filename         = data.archive_file.this.output_path
+  function_name    = local.function_name
+  role             = aws_iam_role.role.arn
+  handler          = "lambda.handler"
+  runtime          = "python3.8"
+  layers           = [module.python-api-dependencies.lambda_layer_arn]
   source_code_hash = data.archive_file.this.output_base64sha256
 }
 
-# IAM
+## IAM
 resource "aws_iam_role" "role" {
   name = "FastAPI-Role"
 
@@ -45,7 +49,13 @@ resource "aws_iam_role" "role" {
 POLICY
 }
 
+# Allow logging
 resource "aws_iam_role_policy_attachment" "this" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   role       = aws_iam_role.role.name
+}
+
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/lambda/${local.function_name}"
+  retention_in_days = 14
 }

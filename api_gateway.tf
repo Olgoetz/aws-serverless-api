@@ -1,6 +1,6 @@
 # API Gateway
 resource "aws_api_gateway_rest_api" "api" {
-  name = "FastAPI"
+  name        = "FastAPI"
   description = "Example of serverless python REST API"
   endpoint_configuration {
     types = ["REGIONAL"]
